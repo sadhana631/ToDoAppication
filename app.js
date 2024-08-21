@@ -3,7 +3,7 @@ const {open} = require('sqlite')
 const sqlite3 = require('sqlite3')
 const path = require('path')
 
-const databasePath = path.join(__dirname, "todo Appliction.db");
+const databasePath = path.join(__dirname, 'todo Appliction.db')
 
 const app = express()
 
@@ -29,14 +29,14 @@ const initializeDbAndServer = async () => {
 
 initializeDbAndServer()
 
-const hasPriorityAndStatusProperties = requeatQuery => {
+const hasPriorityAndStatusProperties = requestQuery => {
   return (
-    requeatQuery.priority !== undefined && requeatQuery.status !== undefined
+    requestQuery.priority !== undefined && requestQuery.status !== undefined
   )
 }
 
 const hasPriorityProperty = requestQuery => {
-  return requeatQuery.priority !== undefined
+  return requestQuery.priority !== undefined
 }
 
 const hasStatusProperty = requestQuery => {
@@ -69,7 +69,7 @@ app.get('/todos/', async (request, response) => {
        todo LIKE '%${search_q}%'
        AND priority = '${priority}';`
       break
-    case hasStatusProperty(requeat.query):
+    case hasStatusProperty(request.query):
       getTodosQuery = `
    SELECT
      *
@@ -103,7 +103,7 @@ app.get('/todos/:todoId/', async (request, response) => {
       todo
     WHERE
       id = ${todoId};`
-  const todo = await database.get(getTodoQuery)
+  const todo = await database.get(getTodosQuery);
   response.send(todo)
 })
 
@@ -118,7 +118,7 @@ app.post('/todos/', async (request, response) => {
   response.send('Todo Successfully Added')
 })
 
-app.put('/todos/;todoId/', async (request, response) => {
+app.put('/todos/:todoId/', async (request, response) => {
   const {todoId} = request.params
   let updateColumn = ' '
   const requestBody = request.body
@@ -133,18 +133,15 @@ app.put('/todos/;todoId/', async (request, response) => {
       updateColumn = 'Todo'
       break
   }
-  const previousTodoQuery = `
-    SELECT
-      *
-    FROM
+  const updateTodoQuery = `
+    UPDATE
       todo 
     SET
       todo='${todo}',
       priority='${priority}',
-      status='${status}',
+      status='${status}'
     WHERE
       id = ${todoId};`
-      
 
   await database.run(updateTodoQuery)
   response.send(`${updateColumn} Updated`)
